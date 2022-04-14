@@ -8,6 +8,7 @@
 # testing
 /coverage
 
+# Sanity
 /sanity/node_modules
 
 # next.js
