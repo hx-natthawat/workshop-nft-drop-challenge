@@ -7,7 +7,7 @@ import { sanityClient, urlFor } from '../sanity'
 import { Collection } from '../sanity/typings'
 
 interface Props {
-  collections: Collection[]
+  collections: Collection[] // Map to array
 }
 
 const Home = ({ collections }: Props) => {
