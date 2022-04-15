@@ -49,7 +49,7 @@ export default {
     },
     {
       name: 'previewImage',
-      title: 'MaPreviewin image',
+      title: 'Preview image',
       type: 'image',
       options: {
         hotspot: true,
