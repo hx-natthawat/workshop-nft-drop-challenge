@@ -7,7 +7,7 @@ import { sanityClient, urlFor } from '../sanity'
 import { Collection } from '../sanity/typings'
 
 interface Props {
-  collections: Collection
+  collections: Collection[]
 }
 
 const Home = ({ collections }: Props) => {
@@ -31,7 +31,7 @@ const Home = ({ collections }: Props) => {
       {/* Content */}
       <main className="bg-slate-100 p-10 shadow-xl shadow-rose-400/20">
         <div className="grid space-x-3 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-          {collections.map((collection: any) => (
+          {collections.map((collection) => (
             <Link href={`/nft/${collection.slug.current}`}>
               <div className="flex cursor-pointer flex-col items-center transition-all duration-200 hover:scale-105">
                 <img
@@ -85,7 +85,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   }`
 
   const collections = await sanityClient.fetch(query)
-  console.log(collections)
+  // console.log(collections)
 
   return {
     props: {
