@@ -1,22 +1,48 @@
-import React from 'react'
-import { useAddress, useDisconnect, useMetamask } from '@thirdweb-dev/react'
+import React, { useEffect, useState } from 'react'
+import {
+  useAddress,
+  useDisconnect,
+  useMetamask,
+  useNFTDrop,
+} from '@thirdweb-dev/react'
 import { GetServerSideProps } from 'next'
 import { sanityClient, urlFor } from '../../sanity'
 import { Collection } from '../../sanity/typings'
 import Link from 'next/link'
+import { BigNumber } from 'ethers'
 
 interface Props {
   collection: Collection
 }
 
 function NFTDropPage({ collection }: Props) {
+  const [claimedSupply, setClaimedSupply] = useState<number>(0)
+  const [totalSupply, setTotalSupply] = useState<BigNumber>()
+  const [loading, setLoading] = useState<boolean>(true)
+  const nftDrop = useNFTDrop(collection.address)
+
   // Auth
   const connectWithMetaMask = useMetamask()
   const walletAddress = useAddress()
   const disconnectWallet = useDisconnect()
 
-  //--
-  //   console.log(walletAddress)
+  useEffect(() => {
+    if (!nftDrop) return
+
+    const fetchNFTDropData = async () => {
+      setLoading(true)
+
+      const claimed = await nftDrop.getAllClaimed()
+      const total = await nftDrop.totalSupply()
+
+      setClaimedSupply(claimed.length)
+      setTotalSupply(total)
+
+      setLoading(false)
+    }
+
+    fetchNFTDropData()
+  }, [nftDrop])
 
   return (
     <div className="flex h-screen flex-col lg:grid lg:grid-cols-10">
@@ -90,12 +116,49 @@ function NFTDropPage({ collection }: Props) {
             {collection.title}
           </h1>
 
-          <p className="pt-2 text-xl text-green-500">12 May NFT's Claimed</p>
+          {/* Loading */}
+          {loading ? (
+            <p className="animate-pulse pt-2 text-xl text-green-500">
+              Loading Supply Count...
+            </p>
+          ) : (
+            <p className="pt-2 text-xl text-green-500">
+              {claimedSupply} / {totalSupply?.toString()} NFT's Claimed
+            </p>
+          )}
+
+          {loading && (
+            <img
+              className="h-80 w-80 object-contain"
+              src="https://miro.medium.com/max/1400/1*CsJ05WEGfunYMLGfsT2sXA.gif"
+              alt=""
+            />
+          )}
         </div>
 
         {/* Mint Button */}
-        <button className="mt-10 h-16 w-full rounded-full bg-red-500 text-white">
-          Mint NFT (0.01 ETH)
+        <button
+          disabled={
+            loading ||
+            claimedSupply === totalSupply?.toNumber() ||
+            !walletAddress
+          }
+          className="mt-10 h-16 w-full rounded-full bg-red-500 font-bold text-white disabled:bg-gray-400"
+        >
+          {
+            // console.log(claimedSupply)
+            console.log(totalSupply?.toNumber())
+          }
+
+          {loading ? (
+            <>loading</>
+          ) : claimedSupply === totalSupply?.toNumber() ? (
+            <>SOLD OUT</>
+          ) : !walletAddress ? (
+            <>Sign in to Mint</>
+          ) : (
+            <span>Mint NFT (0.01 ETH)</span>
+          )}
         </button>
       </div>
     </div>
